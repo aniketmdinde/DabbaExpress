@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import Signup from './components/auth/Signup';
 import Login from './components/auth/Login';
 import Dashboard from './components/Dashboard';
+import ProviderForm from './components/provider/ProviderForm';
 
 function App() {
   return (
@@ -21,6 +22,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/provider/create" element={<ProviderForm />} />
+
           <Route path="/" element={
             <>
               <Hero />
