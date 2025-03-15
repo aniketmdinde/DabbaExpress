@@ -1,14 +1,18 @@
-import { Router } from "express";
-import { createTiffin, getAllTiffins, getTiffinById, updateTiffin, deleteTiffin } from "../controllers/tiffin.controller.js";
-import { upload } from "../middlewares/multer.middleware.js";
-import { verifyUserJWT } from "../middlewares/auth.middleware.js";
+import express from "express";
+import {
+  createTiffin,
+  getAllTiffins,
+  getTiffinById,
+  updateTiffin,
+  deleteTiffin,
+} from "../controllers/tiffin.controller.js";
 
-const router = Router();
+const router = express.Router();
 
-router.post("/", verifyUserJWT, upload.single("image"), createTiffin); // Create a tiffin
-router.get("/", getAllTiffins); // Get all tiffins
-router.get("/:id", getTiffinById); // Get a tiffin by ID
-router.put("/:id", verifyUserJWT, upload.single("image"), updateTiffin); // Update a tiffin
-router.delete("/:id", verifyUserJWT, deleteTiffin); // Delete a tiffin
+router.post("/", createTiffin);
+router.get("/", getAllTiffins);
+router.get("/:id", getTiffinById);
+router.put("/:id", updateTiffin);
+router.delete("/:id", deleteTiffin);
 
 export default router;
