@@ -33,7 +33,7 @@ const orderSchema = new mongoose.Schema(
     },
     deliveryMethod: {
       type: String,
-      enum: ["Pickup", "Home Delivery"],
+      enum: ["pickup", "delivery"],
       required: true,
     },
     isPaymentDone: {

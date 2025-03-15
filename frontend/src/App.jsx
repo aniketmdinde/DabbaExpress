@@ -11,6 +11,7 @@ import Signup from './components/auth/Signup';
 import Login from './components/auth/Login';
 import Dashboard from './components/Dashboard';
 import ProviderForm from './components/provider/ProviderForm';
+import CustomerPage from './components/customer/CustomerPage'; // ✅ Make sure to import it
 
 function App() {
   return (
@@ -23,14 +24,18 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/provider/create" element={<ProviderForm />} />
-
-          <Route path="/" element={
-            <>
-              <Hero />
-              <Features />
-              <HowItWorks />
-            </>
-          } />
+          <Route path="/order" element={<CustomerPage />} /> {/* ✅ Added CustomerPage route */}
+          
+          <Route
+            path="/"
+            element={
+              <>
+                <Hero />
+                <Features />
+                <HowItWorks />
+              </>
+            }
+          />
         </Routes>
         <Footer />
       </div>
