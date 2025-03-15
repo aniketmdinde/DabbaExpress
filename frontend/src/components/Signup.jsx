@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
-import Loader from "../lib/Loader";
+import Loader from "./lib/Loader";
+import { useParams } from "react-router-dom";
 
 export default function Signup() {
+    const {role} = useParams();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         fullName: "",
@@ -67,6 +69,7 @@ export default function Signup() {
 
     const handleSubmit = (e) => {
         e.preventDefault(); // Prevent default form submission
+        
 
         // Only allow submission on Step 3 when all required fields are filled
         if (step === 3) {
@@ -74,8 +77,9 @@ export default function Signup() {
                 setError("Please fill all details.");
                 return;
             }
+            const updatedFormData = {...formData, type:role};
             // Handle final submission logic here
-            console.log("Form submitted successfully!", formData);
+            console.log("Form submitted successfully!", updatedFormData);
             alert("Form submitted successfully!");
         }
     };

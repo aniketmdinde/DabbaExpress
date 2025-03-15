@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Loader from "../lib/Loader";
+import Loader from "./lib/Loader";
 
 
 
