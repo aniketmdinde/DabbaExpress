@@ -1,38 +1,35 @@
-import { Route, Routes } from "react-router-dom";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
-import AddFood from "./components/provider/AddFood";
-import SearchFood from "./components/SearchFood";
-import Footer from "./components/Footer";
-import Navbar from "./components/Navbar";
-import Dashboard from "./components/Dashboard";
-import Temp from "./components/temp";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Hero from './components/Hero';
+import Features from './components/Features';
+import HowItWorks from './components/HowItWorks';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Signup from './components/auth/Signup';
+import Login from './components/auth/Login';
 
 function App() {
   return (
-    <>
-    <Navbar/>
-
-      <Routes>
-        {/* Default Landing Page */}
-        <Route path="/" element={<Temp/>} />
-
-  
-          <Route path="/:role/login" element={<Login />} />
-          <Route path="/:role/signup" element={<Signup />} />
-
-
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/searchfood" element={<SearchFood />} />
-          <Route path="/add-food" element={<AddFood />} />
-
-
-        {/* Fallback Route for 404 Pages */}
-        <Route path="*" element={<h1>404 - Page Not Found</h1>} />
-      </Routes>
-      <Footer />
-
-    </>
+    <Router>
+      <div className="min-h-screen bg-white">
+        <ToastContainer position="top-right" autoClose={3000} />
+        <Navbar />
+        <Routes>
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={
+            <>
+              <Hero />
+              <Features />
+              <HowItWorks />
+            </>
+          } />
+        </Routes>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
