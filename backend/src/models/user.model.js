@@ -23,7 +23,16 @@ const userSchema = new mongoose.Schema(
     address: { type: String },
     refresh_token: { type: String },
     is_logged_in: { type: Boolean, default: false },
-    location: { type: String }
+    location: { 
+      lat:{
+        type: Number,
+      
+      },
+      long:{
+        type: Number,
+
+      }
+     }
   },
   { timestamps: true }
 );
