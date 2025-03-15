@@ -2,35 +2,81 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Phone } from 'lucide-react';
+import axios from 'axios';
 
 const Login = () => {
   const navigate = useNavigate();
   const [stage, setStage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     phone: '',
     otp: ''
   });
 
-  const handlePhoneSubmit = (e) => {
+  const handlePhoneSubmit = async (e) => {
     e.preventDefault();
-    toast.success('OTP sent successfully!');
-    setStage(2);
+    if (!formData.phone) {
+      setError("Please enter a valid phone number.");
+      toast.error("Please enter a valid phone number.");  // ✅ Show error toast
+      return;
+    }
+
+    setIsLoading(true);
+    console.log(`dhd`);
+    try {
+      const response = await axios.post("/api/users/login", {
+        phone_no: formData.phone,
+      });
+
+      console.log(response);
+      if (response.status === 201) {
+        toast.success(response.data.message);
+        setStage(2)  // ✅ Correct success toast
+      } else {
+        toast.error(response.data.message);  // ✅ Correct success toast
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong!");  // ✅ Improved error handling
+    } finally {
+      setIsLoading(false);
+    }
+
   };
 
-  const handleOTPVerify = (e) => {
+  const handleOTPVerify = async (e) => {
     e.preventDefault();
-    localStorage.setItem('user', JSON.stringify({ phone: formData.phone }));
-    toast.success('Login successful!');
-    navigate('/');
-    window.location.reload(); // Refresh to update navbar state
+    if (!formData.otp) {
+      setError("Please enter a valid OTP.");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await axios.post("/api/users/verify-otp", {
+        phone_no: formData.phone,
+        otp: formData.otp
+      });
+      console.log(response);
+      if (response.status === 200) {
+        toast.success(response.data.message);  // ✅ Correct success toast
+
+        navigate("/dashboard")  // ✅ Correct success toast
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong!");  // ✅ Improved error handling
+    } finally {
+      setIsLoading(false);
+    }
+
   };
 
   return (
-    <div className="min-h-screen bg-center bg-cover flex items-center justify-center px-4" 
-         style={{
-           backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')",
-           animation: "gradientBG 15s ease infinite"
-         }}>
+    <div className="min-h-screen bg-center bg-cover flex items-center justify-center px-4"
+      style={{
+        backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')",
+        animation: "gradientBG 15s ease infinite"
+      }}>
       <div className="max-w-md w-full space-y-8 bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-2xl animate-fade-in">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900 animate-slide-up">
@@ -63,7 +109,15 @@ const Login = () => {
               type="submit"
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transform transition hover:scale-105"
             >
-              Send OTP
+              {
+                isLoading? (
+                  <div className="flex items-center justify-center h-8 w-8">
+                    <div className="animate-spin rounded-full h-3 w-3 bg-orange-500" />
+                  </div>
+                ) : (
+                  "Send OTP"
+                )
+              }
             </button>
           </form>
         ) : (

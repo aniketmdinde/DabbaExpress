@@ -155,8 +155,8 @@ export const uploadAvatar = async (req, res) => {
 // Login User
 export const loginUser = async (req, res) => {
    try {
-    const { phone_no, type } = req.body;
-    let user = await User.findOne({ phone_no, type });
+    const { phone_no} = req.body;
+    let user = await User.findOne({ phone_no });
 
     if (!user) return res.status(400).json({ message: "Phone number is not registered." });
 

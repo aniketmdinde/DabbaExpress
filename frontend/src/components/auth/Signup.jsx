@@ -2,44 +2,104 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { UserCircle, Phone, MapPin } from 'lucide-react';
+import axios from "axios"
 
 const Signup = () => {
   const navigate = useNavigate();
   const [stage, setStage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     phone: '',
     otp: '',
-    name: '',
-    gender: '',
-    address: '',
-    image: null
   });
 
-  const handlePhoneSubmit = (e) => {
+  const handlePhoneSubmit = async(e) => {
     e.preventDefault();
-    toast.success('OTP sent successfully!');
-    setStage(1.5);
+    if (!formData.phone) {
+      setError("Please enter a valid phone number.");
+      toast.error("Please enter a valid phone number.");  // ✅ Show error toast
+      return;
+  }
+
+  setIsLoading(true);
+  try {
+      const response = await axios.post("/api/users/register", {
+          phone_no: formData.phone
+      });
+
+      console.log(response);
+      if (response.status === 201) {
+          toast.success(response.data.message);
+          setStage(1.5)  // ✅ Correct success toast
+      } else {
+          toast.error(response.data.message);  // ✅ Correct success toast
+      }
+  } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong!");  // ✅ Improved error handling
+  } finally {
+      setIsLoading(false);
+  }
+
   };
 
-  const handleOTPVerify = (e) => {
+  const handleOTPVerify = async(e) => {
     e.preventDefault();
-    toast.success('Phone verified successfully!');
-    setStage(2);
+    if (!formData.otp) {
+        setError("Please enter a valid OTP.");
+        return;
+    }
+    setIsLoading(true);
+    try {
+        const response = await axios.post("/api/users/verify-otp", {
+            phone_no: formData.phone,
+            otp: formData.otp
+        });
+        console.log(response);
+        if (response.status === 200) {
+            toast.success(response.data.message);  // ✅ Correct success toast
+            setStage(2);
+        } else {
+            toast.error(response.data.message);  // ✅ Correct success toast
+        }
+    } catch (error) {
+        toast.error(error.response?.data?.message || "Something went wrong!");  // ✅ Improved error handling
+    } finally {
+        setIsLoading(false);
+    }
+
   };
 
-  const handleInfoSubmit = (e) => {
+  const handleInfoSubmit = async (e) => {
     e.preventDefault();
-    toast.success('Information saved successfully!');
-    setStage(3);
+        setIsLoading(true);
+        
+        try {
+            const response = await axios.post("/api/users/complete-profile", formData)
+            if (response.status === 200) {
+                toast.success(response.data.message);  // ✅ Correct success toast
+                setIsLoading(false);
+                setStage(3);
+            }else{
+                toast.error(response.data.message);  // ✅ Correct success toast
+                setIsLoading(false);
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Something went wrong!");  // ✅ Improved error handling            
+        }finally{
+            setIsLoading(false);
+        }
+
   };
 
   const handleFinalSubmit = (e) => {
     e.preventDefault();
     localStorage.setItem('user', JSON.stringify({ ...formData }));
     toast.success('Signup completed successfully!');
-    navigate('/');
-    window.location.reload(); // Refresh to update navbar state
+    navigate('/dashboard');
+
   };
+
+  
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -89,11 +149,34 @@ const Signup = () => {
                 />
               </div>
             </div>
+            <div>
+                <label htmlFor="role" className="sr-only">Role</label>
+                <select
+                  id="role"
+                  name="role"
+                  required
+                  className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-orange-500 focus:border-orange-500 transform transition hover:scale-101"
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                >
+                  <option value="" disabled>Select Role</option>
+                  <option value="user">Customer</option>
+                  <option value="provider">Provider</option>
+                </select>
+              </div>
             <button
               type="submit"
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transform transition hover:scale-105"
             >
-              Send OTP
+              {
+                isLoading? (
+                  <div className="flex items-center justify-center h-8 w-8">
+                    <div className="animate-spin rounded-full h-3 w-3 bg-orange-500" />
+                  </div>
+                ) : (
+                  "Send OTP"
+                )
+              }
             </button>
           </form>
         )}
@@ -113,6 +196,7 @@ const Signup = () => {
                 onChange={(e) => setFormData({ ...formData, otp: e.target.value })}
               />
             </div>
+            
             <button
               type="submit"
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transform transition hover:scale-105"
@@ -157,6 +241,7 @@ const Signup = () => {
                   <option value="other">Other</option>
                 </select>
               </div>
+             
               <div>
                 <label htmlFor="address" className="sr-only">Address</label>
                 <div className="relative">

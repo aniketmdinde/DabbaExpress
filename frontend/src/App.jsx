@@ -9,6 +9,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Signup from './components/auth/Signup';
 import Login from './components/auth/Login';
+import Dashboard from './components/Dashboard';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <ToastContainer position="top-right" autoClose={3000} />
         <Navbar />
         <Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/" element={
