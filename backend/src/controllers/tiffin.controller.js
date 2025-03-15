@@ -3,7 +3,10 @@ import { Tiffin } from "../models/tiffin.model.js";
 // Create a new Tiffin
 export const createTiffin = async (req, res) => {
   try {
-    const { user, tiffin, diet, max_order, availableTime, allergenInfo, image, deliveryOptions } = req.body;
+    const user = req.user;
+    console.log(user);
+    const { tiffin, diet, max_order, availableTime, allergenInfo, image, deliveryOptions } = req.body;
+    console.log(`h5`);
 
     const newTiffin = new Tiffin({
       user,
@@ -19,6 +22,7 @@ export const createTiffin = async (req, res) => {
     await newTiffin.save();
     res.status(201).json({ success: true, message: "Tiffin created successfully", tiffin: newTiffin });
   } catch (error) {
+    console.log(`sdsd`);
     res.status(500).json({ success: false, message: error.message });
   }
 };

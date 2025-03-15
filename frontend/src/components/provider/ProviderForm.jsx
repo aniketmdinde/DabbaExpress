@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, X, Upload, ChefHat, MapPin } from 'lucide-react';
-
+import axios from 'axios';
+import {useNavigate} from "react-router-dom";
+import {toast} from "react-toastify"
 const ProviderForm = () => {
   const [vegetables, setVegetables] = useState(['', '']);
   const [userLocation, setUserLocation] = useState(null);
   const [activeSection, setActiveSection] = useState(0);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    providerName: '',
-    contact: '',
-    address: '',
-    description: '',
-    dietType: 'veg',
-    fullPrice: '',
-    halfPrice: '',
-    max_order: '',
-    availableTime: '',
+    providerName: "",
+    contact: "",
+    address: "",
+    description: "",
+    dietType: "veg",
+    fullPrice: "",
+    halfPrice: "",
+    max_order: "",
+    availableTime: "",
     deliveryOptions: [],
-    allergenInfo: '',
-    image: null
+    allergenInfo: "",
+    image: null,
   });
 
   useEffect(() => {
@@ -26,8 +29,8 @@ const ProviderForm = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUserLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
+            lat: position.coords.latitude,
+            long: position.coords.longitude
           });
         },
         (error) => {
@@ -60,17 +63,13 @@ const ProviderForm = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (type === 'checkbox') {
-      const options = [...formData.deliveryOptions];
-      if (checked) {
-        options.push(value);
-      } else {
-        const index = options.indexOf(value);
-        if (index > -1) {
-          options.splice(index, 1);
-        }
-      }
-      setFormData({ ...formData, deliveryOptions: options });
+
+    if (type === "checkbox") {
+      setFormData((prevData) => {
+        const options = new Set(prevData.deliveryOptions);
+        checked ? options.add(value) : options.delete(value);
+        return { ...prevData, deliveryOptions: Array.from(options) };
+      });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -83,50 +82,58 @@ const ProviderForm = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Create menu maps for full and half tiffin
-    const fullMenu = new Map();
-    fullMenu.set('chapati', 4);
-    fullMenu.set('dal', 1);
-    fullMenu.set('rice', 1);
-    vegetables.forEach(veg => {
-      if (veg.trim()) fullMenu.set(veg, 1);
-    });
-    
-    const halfMenu = new Map();
-    halfMenu.set('chapati', 2);
-    halfMenu.set('dal', 1);
-    halfMenu.set('rice', 1);
-    vegetables.forEach(veg => {
-      if (veg.trim()) halfMenu.set(veg, 0.5);
-    });
-    
-    // Format data according to the backend schema
+
+    const formattedVegetables = vegetables;
     const tiffinData = {
-      user: "currentUserId", // This would come from auth context in a real app
       tiffin: {
-        full: {
-          menu: Object.fromEntries(fullMenu),
-          price: parseFloat(formData.fullPrice)
-        },
         half: {
-          menu: Object.fromEntries(halfMenu),
-          price: parseFloat(formData.halfPrice)
-        }
+          menu: {
+            chapatis: 2,
+            vegetable: formattedVegetables.length > 0 ? formattedVegetables[0] : "", // Single vegetable
+            dal: 1,
+            rice: 1,
+          },
+          price: parseFloat(formData.halfPrice),
+        },
+        full: {
+          menu: {
+            chapatis: 4,
+            vegetables: formattedVegetables, // Array of vegetables
+            dal: 1,
+            rice: 1,
+          },
+          price: parseFloat(formData.fullPrice),
+        },
       },
       diet: formData.dietType,
       max_order: parseInt(formData.max_order),
+      availableTime: formData.availableTime,
+      allergenInfo: formData.allergenInfo,
       image: formData.image,
       deliveryOptions: formData.deliveryOptions,
-      location: userLocation
     };
-    
-    console.log("Submitting tiffin data:", tiffinData);
-    // Here you would make an API call to save the data
-  };
 
+    console.log("Submitting tiffin data:", tiffinData);
+
+    try {
+      const res = await axios.post("/api/tiffin", tiffinData, {
+        headers: { "Content-Type": "application/json" },
+      });
+      const resLocation = await axios.post("/api/users/update-location",userLocation)
+      if(resLocation.status === 200 && res.status === 201)
+      {
+        toast.success("Tiffin created successfully!");
+        navigate("/dashboard"); // Redirect to dashboard
+
+      }else{
+        toast.error("Failed to create tiffin or update user location");
+      }
+    } catch (error) {
+      console.error("Error submitting tiffin data:", error);
+    }
+  };
   const sections = [
     { title: "Vegetable Options", icon: <Plus className="h-6 w-6" /> },
     { title: "Tiffin Options", icon: <ChefHat className="h-6 w-6" /> },
@@ -378,7 +385,7 @@ const ProviderForm = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Delivery Options</label>
                 <div className="space-y-2">
-                  {['Pickup', 'Home Delivery'].map((option) => (
+                  {["pickup", "delivery"].map((option) => (
                     <label key={option} className="flex items-center space-x-3">
                       <input
                         type="checkbox"
@@ -388,7 +395,7 @@ const ProviderForm = () => {
                         onChange={handleInputChange}
                         className="h-4 w-4 text-orange-500 focus:ring-orange-400 border-gray-300 rounded"
                       />
-                      <span className="text-gray-700">{option}</span>
+                      <span className="text-gray-700">{option.charAt(0).toUpperCase() + option.slice(1)}</span>
                     </label>
                   ))}
                 </div>
