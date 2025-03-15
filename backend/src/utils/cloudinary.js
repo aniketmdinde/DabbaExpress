@@ -8,49 +8,27 @@ cloudinary.config({
 });
 
 export const uploadOnCloudinary = async (localFilePath) => {
-    if (!localFilePath) {
-        console.log("Could not find local path :: Cloudinary");
-        return null;
-    }
+    if (!localFilePath) return null;
 
     try {
-        const response = await cloudinary.uploader.upload(localFilePath, {
-            resource_type: "auto",
-        });
-
+        const response = await cloudinary.uploader.upload(localFilePath, { resource_type: "auto" });
         fs.unlinkSync(localFilePath);
-        console.log("File uploaded successfully on Cloudinary ::", response.url);
         return response;
     } catch (error) {
         fs.unlinkSync(localFilePath);
-        console.log("Error while uploading file :: CLOUDINARY ::", error);
+        console.error("Cloudinary Upload Error:", error);
         return null;
     }
-};
-
-const extractPublicId = (fileUrl) => {
-    const parts = fileUrl.split('/');
-    const filepart = parts.slice(-1);
-    const publicId = filepart[0].split('.')[0];
-    return publicId;
 };
 
 export const deleteFromCloudinary = async (fileUrl) => {
-    if (!fileUrl) {
-        console.log("Invalid file URL :: Cloudinary");
-        return null;
-    }
+    if (!fileUrl) return null;
 
-    const filePublicId = extractPublicId(fileUrl);
+    const publicId = fileUrl.split('/').pop().split('.')[0];
 
     try {
-        await cloudinary.uploader.destroy(filePublicId, {
-            invalidate: true,
-        });
-
-        console.log("File deleted successfully on Cloudinary ::");
+        await cloudinary.uploader.destroy(publicId);
     } catch (error) {
-        console.log("Error while deleting file :: CLOUDINARY ::", error);
-        return null;
+        console.error("Cloudinary Deletion Error:", error);
     }
-}
+};

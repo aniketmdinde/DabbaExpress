@@ -1,56 +1,32 @@
-import { Company } from "../models/company.model.js";
 import { User } from "../models/user.model.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
-export const verifyUserJWT = asyncHandler( async (req, res, next) => {
-    // const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
-    
-    // if(!token) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: "Unauthorized request"
-    //     })
-    // }
+dotenv.config();
+const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
-    // const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+export const verifyUserJWT = async (req, res, next) => {
+  const token = req.cookies.access_token;
 
-    // const user = await User.findById(decodedToken?._id).select("-password -refreshToken");
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized: No token provided." });
+  }
 
-    // if(!user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: "Invalid Access Token"
-    //     })
-    // }
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.id).select("-otp -refresh_token");
 
-    // req.user = user;
+    if (!user || !user.is_logged_in) {
+      return res.status(403).json({ message: "Session expired. Please log in again." });
+    }
 
+    req.user = user;
     next();
-})
+  } catch (error) {
+    const message = error.name === "TokenExpiredError"
+      ? "Session expired. Please log in again."
+      : "Unauthorized: Invalid token.";
 
-export const verifyCompanyJWT = asyncHandler( async (req, res, next) => {
-    // const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
-    
-    // if(!token) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: "Unauthorized request"
-    //     })
-    // }
-
-    // const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
-    // const user = await Company.findById(decodedToken?._id).select("-password -refreshToken");
-
-    // if(!user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: "Invalid Access Token"
-    //     })
-    // }
-
-    // req.company = company;
-
-    next();
-})
+    return res.status(401).json({ message });
+  }
+};
