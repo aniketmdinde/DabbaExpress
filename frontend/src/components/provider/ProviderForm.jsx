@@ -4,6 +4,7 @@ import { Plus, X, Upload, ChefHat, MapPin } from 'lucide-react';
 const ProviderForm = () => {
   const [vegetables, setVegetables] = useState(['', '']);
   const [userLocation, setUserLocation] = useState(null);
+  const [activeSection, setActiveSection] = useState(0);
   const [formData, setFormData] = useState({
     providerName: '',
     contact: '',
@@ -34,6 +35,21 @@ const ProviderForm = () => {
         }
       );
     }
+    
+    // Add scroll animation observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-appear');
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+      observer.observe(el);
+    });
+    
+    return () => observer.disconnect();
   }, []);
 
   const handleVegetableChange = (index, value) => {
@@ -83,10 +99,8 @@ const ProviderForm = () => {
     halfMenu.set('chapati', 2);
     halfMenu.set('dal', 1);
     halfMenu.set('rice', 1);
-    // For half tiffin, we'll let the user choose one vegetable at order time
-    // but we still need to include both options in the schema
     vegetables.forEach(veg => {
-      if (veg.trim()) halfMenu.set(veg, 0.5); // Indicating that only one will be chosen
+      if (veg.trim()) halfMenu.set(veg, 0.5);
     });
     
     // Format data according to the backend schema
@@ -113,49 +127,128 @@ const ProviderForm = () => {
     // Here you would make an API call to save the data
   };
 
+  const sections = [
+    { title: "Vegetable Options", icon: <Plus className="h-6 w-6" /> },
+    { title: "Tiffin Options", icon: <ChefHat className="h-6 w-6" /> },
+    { title: "Availability & Preferences", icon: <MapPin className="h-6 w-6" /> },
+    { title: "Additional Details", icon: <Upload className="h-6 w-6" /> }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6 animate-fade-in">
-          <div className="text-center">
-            <div className="inline-block p-3 rounded-full bg-orange-100 mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background geometric patterns */}
+      <div className="absolute inset-0 z-0 opacity-20">
+        <div className="absolute top-20 left-20 w-64 h-64 rounded-full bg-gradient-to-r from-orange-300 to-yellow-200 blur-3xl"></div>
+        <div className="absolute bottom-40 right-20 w-80 h-80 rounded-full bg-gradient-to-l from-amber-200 to-orange-100 blur-3xl"></div>
+        <div className="absolute top-1/3 right-1/4 w-40 h-40 rounded-full bg-gradient-to-tr from-yellow-100 to-orange-200 blur-3xl"></div>
+      </div>
+
+      {/* Decorative pattern overlay */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMCAwaDQwdjQwSDB6Ii8+PGNpcmNsZSBmaWxsPSJyZ2JhKDI1NSwgMTY1LCAwLCAwLjA1KSIgY3g9IjIwIiBjeT0iMjAiIHI9IjEiLz48L2c+PC9zdmc+')] opacity-50 z-0"></div>
+
+      <div className="max-w-4xl mx-auto z-10 relative">
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 space-y-6 border border-orange-100">
+          {/* Title with animation */}
+          <div className="text-center animate-fade-in">
+            <div className="inline-block p-3 rounded-full bg-orange-100 mb-4 shadow-md">
               <ChefHat className="h-8 w-8 text-orange-500" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Your Tiffin Service</h2>
             <p className="text-gray-600">Share your delicious home-cooked meals with the community</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            
+          {/* Progress steps indicator */}
+          <div className="flex justify-between items-center px-2 py-4">
+            {sections.map((section, index) => (
+              <div 
+                key={index} 
+                className={`flex flex-col items-center cursor-pointer transition-all duration-300 ${
+                  activeSection === index ? "scale-110" : "opacity-70"
+                }`}
+                onClick={() => setActiveSection(index)}
+              >
+                <div className={`flex items-center justify-center w-12 h-12 rounded-full mb-1 transition-colors duration-300 ${
+                  activeSection >= index 
+                    ? "bg-orange-500 text-white" 
+                    : "bg-gray-200 text-gray-500"
+                }`}>
+                  {section.icon}
+                </div>
+                <span className={`text-xs font-medium ${
+                  activeSection === index ? "text-orange-500" : "text-gray-500"
+                }`}>
+                  {section.title}
+                </span>
+              </div>
+            ))}
+          </div>
 
+          <form onSubmit={handleSubmit} className="space-y-8">
             {/* Vegetables Section */}
-            <div className="space-y-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-              <h3 className="text-xl font-semibold text-gray-800">Vegetable Options</h3>
+            <div className={`space-y-4 animate-on-scroll transition-all duration-500 ${
+              activeSection === 0 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 hidden"
+            }`}>
+              <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                <span className="bg-orange-100 p-2 rounded-full mr-2">
+                  <Plus className="h-4 w-4 text-orange-500" />
+                </span>
+                Vegetable Options
+              </h3>
               <p className="text-sm text-gray-600">Add exactly 2 vegetables that will be included in your tiffin</p>
               
               <div className="space-y-3">
                 {vegetables.map((veg, index) => (
-                  <div key={index} className="flex items-center space-x-2">
+                  <div key={index} className="flex items-center space-x-2 hover:translate-x-1 transition-transform">
                     <input
                       type="text"
                       value={veg}
                       onChange={(e) => handleVegetableChange(index, e.target.value)}
                       placeholder={`Vegetable ${index + 1}`}
-                      className="rounded-lg border-gray-300 border p-3 flex-1 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                      className="rounded-lg border-gray-300 border p-3 flex-1 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all hover:shadow-md"
                       required
                     />
                   </div>
                 ))}
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Diet Type</label>
+                <select
+                  name="dietType"
+                  value={formData.dietType}
+                  onChange={handleInputChange}
+                  className="rounded-lg border-gray-300 border p-3 w-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                >
+                  <option value="veg">Vegetarian</option>
+                  <option value="non-veg">Non-Vegetarian</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <button 
+                  type="button" 
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  onClick={() => setActiveSection(1)}
+                >
+                  Next
+                </button>
+              </div>
             </div>
 
             {/* Tiffin Options Section */}
-            <div className="space-y-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
-              <h3 className="text-xl font-semibold text-gray-800">Tiffin Options</h3>
+            <div className={`space-y-4 animate-on-scroll transition-all duration-500 ${
+              activeSection === 1 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 hidden"
+            }`}>
+              <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                <span className="bg-orange-100 p-2 rounded-full mr-2">
+                  <ChefHat className="h-4 w-4 text-orange-500" />
+                </span>
+                Tiffin Options
+              </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Full Tiffin Card */}
-                <div className="bg-orange-50 rounded-lg p-4 border border-orange-200 shadow-sm">
+                {/* Full Tiffin Card with hover effect */}
+                <div className="bg-orange-50 rounded-lg p-4 border border-orange-200 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
                   <h4 className="text-lg font-semibold text-orange-700 mb-3">Full Tiffin</h4>
                   <ul className="space-y-2 mb-4">
                     <li className="flex items-center text-gray-700">
@@ -189,8 +282,8 @@ const ProviderForm = () => {
                   </div>
                 </div>
                 
-                {/* Half Tiffin Card */}
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200 shadow-sm">
+                {/* Half Tiffin Card with hover effect */}
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
                   <h4 className="text-lg font-semibold text-green-700 mb-3">Half Tiffin</h4>
                   <ul className="space-y-2 mb-4">
                     <li className="flex items-center text-gray-700">
@@ -211,12 +304,12 @@ const ProviderForm = () => {
                     </li>
                   </ul>
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Half Tiffin Price (₹)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Half Tiffin Price (₹)</label>
                     <input
                       type="number"
                       name="halfPrice"
                       placeholder="Price"
-                      className="rounded-lg border-gray-300 border p-3 w-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                      className="rounded-lg border-gray-300 border p-3 w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
                       value={formData.halfPrice}
                       onChange={handleInputChange}
                       required
@@ -224,145 +317,150 @@ const ProviderForm = () => {
                   </div>
                 </div>
               </div>
+
+              <div className="flex justify-between pt-4">
+                <button 
+                  type="button" 
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                  onClick={() => setActiveSection(0)}
+                >
+                  Back
+                </button>
+                <button 
+                  type="button" 
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  onClick={() => setActiveSection(2)}
+                >
+                  Next
+                </button>
+              </div>
             </div>
 
-            {/* Pricing and Availability Section */}
-            <div className="space-y-4 animate-slide-up" style={{ animationDelay: '0.4s' }}>
-              <h3 className="text-xl font-semibold text-gray-800">Availability & Preferences</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Availability & Preferences */}
+            <div className={`space-y-4 animate-on-scroll transition-all duration-500 ${
+              activeSection === 2 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 hidden"
+            }`}>
+              <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                <span className="bg-orange-100 p-2 rounded-full mr-2">
+                  <MapPin className="h-4 w-4 text-orange-500" />
+                </span>
+                Availability & Preferences
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Diet Type</label>
-                  <div className="flex space-x-4">
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="dietType"
-                        value="veg"
-                        checked={formData.dietType === 'veg'}
-                        onChange={handleInputChange}
-                        className="text-orange-500 focus:ring-orange-500"
-                      />
-                      <span>Vegetarian</span>
-                    </label>
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="dietType"
-                        value="non-veg"
-                        checked={formData.dietType === 'non-veg'}
-                        onChange={handleInputChange}
-                        className="text-orange-500 focus:ring-orange-500"
-                      />
-                      <span>Non-Vegetarian</span>
-                    </label>
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Maximum Orders per Day</label>
+                  <input
+                    type="number"
+                    name="max_order"
+                    placeholder="e.g., 10"
+                    className="rounded-lg border-gray-300 border p-3 w-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                    value={formData.max_order}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Available Time</label>
                   <input
-                    type="time"
+                    type="text"
                     name="availableTime"
+                    placeholder="e.g., 12 PM - 3 PM"
                     className="rounded-lg border-gray-300 border p-3 w-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
                     value={formData.availableTime}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Maximum Orders Per Day</label>
-                <input
-                  type="number"
-                  name="max_order"
-                  placeholder="Maximum number of orders you can fulfill"
-                  className="rounded-lg border-gray-300 border p-3 w-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                  value={formData.max_order}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-            </div>
 
-            {/* Additional Details Section */}
-            <div className="space-y-4 animate-slide-up" style={{ animationDelay: '0.6s' }}>
-              <h3 className="text-xl font-semibold text-gray-800">Additional Details</h3>
-              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Delivery Options</label>
                 <div className="space-y-2">
-                  {[
-                    { value: 'pickup', label: 'Customer Pickup' },
-                    { value: 'providerDelivery', label: 'Provider Delivery' },
-                    { value: 'partnerDelivery', label: 'Partner Delivery' }
-                  ].map((option) => (
-                    <label key={option.value} className="flex items-center space-x-2 cursor-pointer">
+                  {['Pickup', 'Home Delivery'].map((option) => (
+                    <label key={option} className="flex items-center space-x-3">
                       <input
                         type="checkbox"
                         name="deliveryOptions"
-                        value={option.value}
-                        checked={formData.deliveryOptions.includes(option.value)}
+                        value={option}
+                        checked={formData.deliveryOptions.includes(option)}
                         onChange={handleInputChange}
-                        className="text-orange-500 focus:ring-orange-500 rounded"
+                        className="h-4 w-4 text-orange-500 focus:ring-orange-400 border-gray-300 rounded"
                       />
-                      <span>{option.label}</span>
+                      <span className="text-gray-700">{option}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tiffin Image</label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-orange-500 transition-colors">
-                  <div className="space-y-1 text-center">
-                    {formData.image ? (
-                      <div className="relative">
-                        <img src={formData.image} alt="Preview" className="mx-auto h-32 w-auto rounded-lg" />
-                        <button
-                          type="button"
-                          onClick={() => setFormData({ ...formData, image: null })}
-                          className="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                        <div className="flex text-sm text-gray-600">
-                          <label className="relative cursor-pointer rounded-md font-medium text-orange-500 hover:text-orange-600 focus-within:outline-none">
-                            <span>Upload a file</span>
-                            <input
-                              type="file"
-                              className="sr-only"
-                              accept="image/*"
-                              onChange={handleImageChange}
-                            />
-                          </label>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
+              <div className="flex justify-between pt-4">
+                <button 
+                  type="button" 
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                  onClick={() => setActiveSection(1)}
+                >
+                  Back
+                </button>
+                <button 
+                  type="button" 
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  onClick={() => setActiveSection(3)}
+                >
+                  Next
+                </button>
               </div>
-              
-              <div className="mt-4">
-              <div className="flex items-center mb-2">
-                  <MapPin className="h-5 w-5 text-orange-500 mr-2" />
-                  <span className="text-sm text-gray-700">
-                    {userLocation
-                      ? `Location set: (${userLocation.latitude.toFixed(3)}, ${userLocation.longitude.toFixed(3)})`
-                      : 'Fetching your location...'}
-                  </span>
-                </div>
+            </div>
+
+            {/* Additional Details */}
+            <div className={`space-y-4 animate-on-scroll transition-all duration-500 ${
+              activeSection === 3 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 hidden"
+            }`}>
+              <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                <span className="bg-orange-100 p-2 rounded-full mr-2">
+                  <Upload className="h-4 w-4 text-orange-500" />
+                </span>
+                Additional Details
+              </h3>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Allergen Info (Optional)</label>
+                <input
+                  type="text"
+                  name="allergenInfo"
+                  placeholder="e.g., Contains peanuts"
+                  className="rounded-lg border-gray-300 border p-3 w-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                  value={formData.allergenInfo}
+                  onChange={handleInputChange}
+                />
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-6">
-                <button
-                  type="submit"
-                  className="w-full flex justify-center py-3 px-6 border border-transparent rounded-lg shadow-lg text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 transition-all text-lg font-semibold"
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full text-gray-700"
+                />
+                {formData.image && (
+                  <img src={formData.image} alt="Preview" className="mt-4 rounded-lg w-full h-40 object-cover" />
+                )}
+              </div>
+
+              <div className="flex justify-between pt-4">
+                <button 
+                  type="button" 
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                  onClick={() => setActiveSection(2)}
                 >
-                  Submit Tiffin Service
+                  Back
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  Submit
                 </button>
               </div>
             </div>
@@ -374,4 +472,3 @@ const ProviderForm = () => {
 };
 
 export default ProviderForm;
-
