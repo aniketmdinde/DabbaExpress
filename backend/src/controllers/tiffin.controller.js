@@ -3,13 +3,15 @@ import { Tiffin } from "../models/tiffin.model.js";
 // Create a new Tiffin
 export const createTiffin = async (req, res) => {
   try {
-    const { user, tiffin, diet, max_order, image, deliveryOptions } = req.body;
+    const { user, tiffin, diet, max_order, availableTime, allergenInfo, image, deliveryOptions } = req.body;
 
     const newTiffin = new Tiffin({
       user,
       tiffin,
       diet,
       max_order,
+      availableTime,
+      allergenInfo,
       image,
       deliveryOptions,
     });
@@ -49,7 +51,17 @@ export const getTiffinById = async (req, res) => {
 // Update a Tiffin
 export const updateTiffin = async (req, res) => {
   try {
-    const updatedTiffin = await Tiffin.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { tiffin, ...updateData } = req.body;
+
+    // Ensure nested tiffin menu is updated correctly
+    if (tiffin) {
+      updateData.tiffin = {
+        half: { ...tiffin.half },
+        full: { ...tiffin.full },
+      };
+    }
+
+    const updatedTiffin = await Tiffin.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
     if (!updatedTiffin) {
       return res.status(404).json({ success: false, message: "Tiffin not found" });

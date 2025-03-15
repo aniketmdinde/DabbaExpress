@@ -10,9 +10,10 @@ const tiffinSchema = new mongoose.Schema(
     tiffin: {
       half: {
         menu: {
-          type: Map,
-          of: Number,
-          required: true,
+          chapatis: { type: Number, required: true },
+          vegetable: { type: String, required: true },
+          dal: { type: Number, required: true },
+          rice: { type: Number, required: true },
         },
         price: {
           type: Number,
@@ -21,9 +22,10 @@ const tiffinSchema = new mongoose.Schema(
       },
       full: {
         menu: {
-          type: Map,
-          of: Number,
-          required: true,
+          chapatis: { type: Number, required: true },
+          vegetables: [{ type: String, required: true }],
+          dal: { type: Number, required: true },
+          rice: { type: Number, required: true },
         },
         price: {
           type: Number,
@@ -40,12 +42,19 @@ const tiffinSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    availableTime: {
+      type: String,
+      required: true,
+    },
+    allergenInfo: {
+      type: String,
+    },
     image: {
       type: String,
     },
     deliveryOptions: {
       type: [String],
-      enum: ["pickup", "providerDelivery", "partnerDelivery"],
+      enum: ["pickup", "delivery"],
       required: true,
     },
   },
