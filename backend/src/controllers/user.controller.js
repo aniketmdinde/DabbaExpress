@@ -10,7 +10,7 @@ const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET;
 export const registerUser = async (req, res) => {
   try {
     const { phone_no, type } = req.body;
-    let user = await User.findOne({ phone_no });
+    let user = await User.findOne({ phone_no, type });
 
     if (user) return res.status(400).json({ message: "Phone number already registered." });
 

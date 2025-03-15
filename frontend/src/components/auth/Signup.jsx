@@ -11,6 +11,11 @@ const Signup = () => {
   const [formData, setFormData] = useState({
     phone: '',
     otp: '',
+    type: 'user',
+    address: '',
+    full_name: '',
+    gender: '',
+    avatar: null,
   });
 
   const handlePhoneSubmit = async(e) => {
@@ -24,7 +29,8 @@ const Signup = () => {
   setIsLoading(true);
   try {
       const response = await axios.post("/api/users/register", {
-          phone_no: formData.phone
+          phone_no: formData.phone,
+          type: formData.type
       });
 
       console.log(response);
@@ -215,13 +221,13 @@ const Signup = () => {
                   <UserCircle className="absolute top-3 left-3 h-5 w-5 text-gray-400" />
                   <input
                     id="name"
-                    name="name"
+                    name="full_name"
                     type="text"
                     required
                     className="appearance-none rounded-lg relative block w-full px-12 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-orange-500 focus:border-orange-500 transform transition hover:scale-101"
                     placeholder="Enter your full name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                   />
                 </div>
               </div>
