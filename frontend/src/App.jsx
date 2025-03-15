@@ -6,6 +6,7 @@ import SearchFood from "./components/SearchFood";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import Dashboard from "./components/Dashboard";
+import Temp from "./components/temp";
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
 
       <Routes>
         {/* Default Landing Page */}
-        <Route path="/" element={<h1>Welcome to Food Delivery App</h1>} />
+        <Route path="/" element={<Temp/>} />
 
   
           <Route path="/:role/login" element={<Login />} />

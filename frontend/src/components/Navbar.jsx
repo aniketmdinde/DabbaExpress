@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -7,12 +7,32 @@ const Navbar = () => {
 
     return (
         <>
-            {/* Navbar with Full Width */}
+            {/* Navbar */}
             <div className="navbar bg-base-100 w-full px-4 h-20 shadow-xl">
+                {/* Drawer Toggle Button (Menu) */}
                 <div className="navbar-start">
-                    <Link to={"/dashboard"} className="btn btn-ghost text-xl">daisyUI</Link>
+                    <label htmlFor="drawer-toggle" className="btn btn-ghost btn-circle md:hidden block">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M4 6h16M4 12h16m-7 6h7"
+                            />
+                        </svg>
+                    </label>
+                    <Link to={"/dashboard"} className="btn btn-ghost text-xl">
+                        TiffinWala
+                    </Link>
                 </div>
-               
+
+                {/* Right-side actions */}
                 <div className="navbar-end flex gap-2">
                     {isSearchOpen && (
                         <input
@@ -21,9 +41,10 @@ const Navbar = () => {
                             placeholder="Search..."
                         />
                     )}
+
                     {/* Search Button */}
                     <button
-                        className={`btn btn-ghost btn-circle ${isSearchOpen? "bg-gray-400":""}`}
+                        className={`btn btn-ghost btn-circle ${isSearchOpen ? "bg-gray-400" : ""}`}
                         onClick={() => setIsSearchOpen(!isSearchOpen)}
                     >
                         <svg
@@ -65,6 +86,24 @@ const Navbar = () => {
                             <span className="badge badge-xs badge-primary indicator-item"></span>
                         </div>
                     </button>
+                    <div className="dropdown dropdown-end">
+                    <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
+                        <div className="w-10 rounded-full">
+                            <img src="https://placehold.co/40x40" alt="User Avatar" />
+                        </div>
+                    </label>
+                    <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
+                        <li>
+                            <Link to="/profile">Profile</Link>
+                        </li>
+                        <li>
+                            <Link to="/settings">Settings</Link>
+                        </li>
+                        <li>
+                            <button onClick={() => setIsLoggedIn(false)}>Logout</button>
+                        </li>
+                    </ul>
+                </div>
                 </div>
             </div>
 
@@ -85,6 +124,37 @@ const Navbar = () => {
                     </div>
                 </div>
             )}
+
+            {/* Drawer Component */}
+            <input type="checkbox" id="drawer-toggle" className="drawer-toggle hidden" />
+            <div className="drawer-side">
+                <label htmlFor="drawer-toggle" className="drawer-overlay"></label>
+                <div className="menu p-4 w-64 min-h-full bg-base-200 text-base-content">
+                    <h2 className="text-lg font-semibold mb-4">Menu</h2>
+                    <ul className="space-y-2">
+                        <li>
+                            <Link to={"/dashboard"} className="btn btn-outline w-full">
+                                Dashboard
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to={"/orders"} className="btn btn-outline w-full">
+                                Orders
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to={"/profile"} className="btn btn-outline w-full">
+                                Profile
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to={"/settings"} className="btn btn-outline w-full">
+                                Settings
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </>
     );
 };

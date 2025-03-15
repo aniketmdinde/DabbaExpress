@@ -49,7 +49,7 @@ export const completeProfile = async (req, res) => {
       user.address = address || user.address;
       await user.save();
   
-      res.json({ message: "Profile updated successfully." });
+      res.status(200).json({ message: "Profile updated successfully." });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -92,7 +92,7 @@ export const verifyOTP = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.json({ message: "Login successful.", user_id: user._id });
+    res.status(200).json({ message: "Login successful.", user_id: user._id });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -156,7 +156,7 @@ export const uploadAvatar = async (req, res) => {
 export const loginUser = async (req, res) => {
    try {
     const { phone_no, type } = req.body;
-    let user = await User.findOne({ phone_no });
+    let user = await User.findOne({ phone_no, type });
 
     if (!user) return res.status(400).json({ message: "Phone number is not registered." });
 
