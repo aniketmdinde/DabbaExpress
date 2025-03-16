@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Phone } from 'lucide-react';
 import axios from 'axios';
+import Lottie from 'lottie-react';
+import welcomeAnimation from './../../../public/animations/Login.json'; 
 
 const Login = () => {
   const navigate = useNavigate();
@@ -72,14 +74,15 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-center bg-cover flex items-center justify-center px-4"
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-b  from-orange-500 to-orange-50"
       style={{
-        backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')",
+        //backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')",
         animation: "gradientBG 15s ease infinite"
       }}>
-      <div className="max-w-md w-full space-y-8 bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-2xl animate-fade-in">
+      <div className="max-w-md w-full space-y-8 bg-white/95 backdrop-blur-sm p-8 border-4 border-orange-500 rounded-xl shadow-2xl animate-fade-in">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900 animate-slide-up">
+        <Lottie animationData={welcomeAnimation} className="w-52 mx-auto" />
+          <h2 className="mt-6 text-3xl font-extrabold text-orange-500 animate-slide-up">
             Welcome back
           </h2>
           <p className="mt-2 text-sm text-gray-600 animate-fade-in-delay">
@@ -98,8 +101,8 @@ const Login = () => {
                   name="phone"
                   type="tel"
                   required
-                  className="appearance-none rounded-lg relative block w-full px-12 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-orange-500 focus:border-orange-500 transform transition hover:scale-101"
-                  placeholder="Enter your phone number"
+                  className="appearance-none rounded-lg relative block w-full px-12 py-3 border-2 border-orange-500 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-orange-500 focus:border-orange-500 transform transition hover:scale-101"
+                  placeholder="           Enter your phone number"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 />

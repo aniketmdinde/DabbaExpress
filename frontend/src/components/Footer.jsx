@@ -3,19 +3,19 @@ import { ChefHat, Facebook, Twitter, Instagram } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-orange-50 text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center mb-4">
               <ChefHat className="h-8 w-8 text-orange-500" />
-              <span className="ml-2 text-xl font-bold">HomeTiffin</span>
+              <span className="ml-2 text-orange-500 text-xl font-bold">HomeTiffin</span>
             </div>
             <p className="text-gray-400">Connecting food lovers with home chefs for authentic, homemade meals.</p>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-lg text-orange-500 font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li><a href="#" className="text-gray-400 hover:text-orange-500">Home</a></li>
               <li><a href="#" className="text-gray-400 hover:text-orange-500">Browse Tiffins</a></li>
@@ -25,7 +25,7 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact</h3>
+            <h3 className="text-lg text-orange-500 font-semibold mb-4">Contact</h3>
             <ul className="space-y-2 text-gray-400">
               <li>support@hometiffin.com</li>
               <li>+1 (555) 123-4567</li>
@@ -34,7 +34,7 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
+            <h3 className="text-lg text-orange-500 font-semibold mb-4">Follow Us</h3>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-orange-500">
                 <Facebook className="h-6 w-6" />
