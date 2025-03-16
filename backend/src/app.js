@@ -26,11 +26,13 @@ app.use(cookieParser())
 import userRouter from "./routes/user.routes.js"
 import tiffinRouter from "./routes/tiffin.routes.js"
 import orderRouter from "./routes/order.routes.js"
+import reviewRouter from "./routes/review.routes.js"
 
 
 // Declare Routes
 app.use("/api/users", userRouter); 
 app.use("/api/tiffin", tiffinRouter); 
 app.use("/api/order", orderRouter); 
+app.use("/api/review", reviewRouter); 
 
 export {app};
