@@ -1,12 +1,19 @@
 import { Order } from "../models/order.model.js";
+import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
 
-// Create a new order
+// Create a new order with optional image upload
 export const createOrder = async (req, res) => {
   try {
-    const user  = req.user._id;
-    console.log(user);
-    console.log(req.body);
-    const {tiffin, quantity, size, totalPrice, deliveryMethod, isPaymentDone } = req.body;
+    const user = req.user._id;
+    const { tiffin, quantity, size, totalPrice, deliveryMethod, isPaymentDone } = req.body;
+
+    let imageUrl = null;
+    if (req.file) {
+      const uploadResult = await uploadOnCloudinary(req.file.path);
+      if (uploadResult) {
+        imageUrl = uploadResult.secure_url;
+      }
+    }
 
     const newOrder = new Order({
       user,
@@ -16,6 +23,7 @@ export const createOrder = async (req, res) => {
       totalPrice,
       deliveryMethod,
       isPaymentDone,
+      image: imageUrl, // Store the uploaded image URL
     });
 
     await newOrder.save();

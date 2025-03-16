@@ -1,31 +1,42 @@
 import { Tiffin } from "../models/tiffin.model.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
-// Create a new Tiffin
 export const createTiffin = async (req, res) => {
   try {
     const user = req.user._id;
-    console.log(user);
-    const { tiffin, diet, max_order, availableTime, allergenInfo, image, deliveryOptions } = req.body;
-    console.log(`h5`);
+    const { tiffin, diet, max_order, availableTime, allergenInfo, deliveryOptions } = req.body;
 
+    // Handle image upload if file is provided
+    let imageUrl = null;
+    if (req.file) {
+      const uploadResult = await uploadOnCloudinary(req.file.path, "tiffins");
+      if (uploadResult && uploadResult.secure_url) {
+        imageUrl = uploadResult.secure_url;
+      } else {
+        return res.status(500).json({ success: false, message: "Image upload failed" });
+      }
+    }
+
+    // Create new Tiffin entry
     const newTiffin = new Tiffin({
       user,
-      tiffin,
+      tiffin: JSON.parse(tiffin), // Ensure the tiffin object is properly parsed
       diet,
-      max_order,
+      max_order: parseInt(max_order),
       availableTime,
       allergenInfo,
-      image,
-      deliveryOptions,
+      image: imageUrl,
+      deliveryOptions: JSON.parse(deliveryOptions), // Convert deliveryOptions to object if needed
     });
 
     await newTiffin.save();
     res.status(201).json({ success: true, message: "Tiffin created successfully", tiffin: newTiffin });
   } catch (error) {
-    console.log(`sdsd`);
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Error creating Tiffin:", error);
+    res.status(500).json({ success: false, message: "Server error. Could not create Tiffin." });
   }
 };
+
 
 // Get all Tiffins
 export const getAllTiffins = async (req, res) => {

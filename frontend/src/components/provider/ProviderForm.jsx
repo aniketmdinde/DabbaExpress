@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, X, Upload, ChefHat, MapPin } from 'lucide-react';
 import axios from 'axios';
-import {useNavigate} from "react-router-dom";
-import {toast} from "react-toastify"
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 const ProviderForm = () => {
   const [vegetables, setVegetables] = useState(['', '']);
   const [userLocation, setUserLocation] = useState(null);
   const [activeSection, setActiveSection] = useState(0);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    providerName: "",
-    contact: "",
-    address: "",
-    description: "",
     dietType: "veg",
     fullPrice: "",
     halfPrice: "",
@@ -22,9 +19,9 @@ const ProviderForm = () => {
     allergenInfo: "",
     image: null,
   });
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
-    // Ask for user location permission when component mounts
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -38,7 +35,7 @@ const ProviderForm = () => {
         }
       );
     }
-    
+
     // Add scroll animation observer
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -78,62 +75,67 @@ const ProviderForm = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({ ...formData, image: URL.createObjectURL(file) });
+      setFormData({ ...formData, image: file });
+      setPreviewImage(URL.createObjectURL(file));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formattedVegetables = vegetables;
     const tiffinData = {
-      tiffin: {
-        half: {
-          menu: {
-            chapatis: 2,
-            vegetable: formattedVegetables.length > 0 ? formattedVegetables[0] : "", // Single vegetable
-            dal: 1,
-            rice: 1,
-          },
-          price: parseFloat(formData.halfPrice),
+      half: {
+        menu: {
+          chapatis: 2,
+          vegetable: vegetables[0],
+          dal: 1,
+          rice: 1
         },
-        full: {
-          menu: {
-            chapatis: 4,
-            vegetables: formattedVegetables, // Array of vegetables
-            dal: 1,
-            rice: 1,
-          },
-          price: parseFloat(formData.fullPrice),
-        },
+        price: formData.halfPrice
       },
-      diet: formData.dietType,
-      max_order: parseInt(formData.max_order),
-      availableTime: formData.availableTime,
-      allergenInfo: formData.allergenInfo,
-      image: formData.image,
-      deliveryOptions: formData.deliveryOptions,
+      full: {
+        menu: {
+          chapatis: 4,
+          vegetables: vegetables,
+          dal: 1,
+          rice: 1
+        },
+        price: formData.fullPrice
+      }
     };
 
-    console.log("Submitting tiffin data:", tiffinData);
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("tiffin", JSON.stringify(tiffinData));
+    formDataToSend.append("diet", formData.dietType);
+    formDataToSend.append("max_order", formData.max_order);
+    formDataToSend.append("availableTime", formData.availableTime);
+    formDataToSend.append("allergenInfo", formData.allergenInfo);
+    formDataToSend.append("deliveryOptions", JSON.stringify(formData.deliveryOptions));
+
+    if (formData.image) {
+      formDataToSend.append("image", formData.image);
+    }
 
     try {
-      const res = await axios.post("/api/tiffin", tiffinData, {
-        headers: { "Content-Type": "application/json" },
+      const res = await axios.post("/api/tiffin", formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      const resLocation = await axios.post("/api/users/update-location",userLocation)
-      if(resLocation.status === 200 && res.status === 201)
-      {
-        toast.success("Tiffin created successfully!");
-        navigate("/dashboard"); // Redirect to dashboard
 
-      }else{
-        toast.error("Failed to create tiffin or update user location");
+      if (userLocation) {
+        await axios.post("/api/users/update-location", userLocation);
+      }
+
+      if (res.status === 201) {
+        toast.success("Tiffin created successfully!");
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error("Error submitting tiffin data:", error);
+      toast.error(error.response?.data?.message || "Error submitting tiffin data");
     }
   };
+  
   const sections = [
     { title: "Vegetable Options", icon: <Plus className="h-6 w-6" /> },
     { title: "Tiffin Options", icon: <ChefHat className="h-6 w-6" /> },
@@ -450,8 +452,8 @@ const ProviderForm = () => {
                   onChange={handleImageChange}
                   className="w-full text-gray-700"
                 />
-                {formData.image && (
-                  <img src={formData.image} alt="Preview" className="mt-4 rounded-lg w-full h-40 object-cover" />
+                {previewImage && (
+                  <img src={previewImage} alt="Preview" className="mt-4 rounded-lg w-full h-40 object-cover" />
                 )}
               </div>
 

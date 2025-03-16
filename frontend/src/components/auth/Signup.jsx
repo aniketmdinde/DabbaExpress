@@ -16,6 +16,7 @@ const Signup = () => {
     full_name: '',
     gender: '',
     avatar: null,
+    imagePreview: null, // For previewing the selected image
   });
 
   const handlePhoneSubmit = async(e) => {
@@ -97,20 +98,62 @@ const Signup = () => {
 
   };
 
-  const handleFinalSubmit = (e) => {
+  const handleFinalSubmit = async (e) => {
     e.preventDefault();
-    localStorage.setItem('user', JSON.stringify({ ...formData }));
-    toast.success('Signup completed successfully!');
-    navigate('/dashboard');
+    setIsLoading(true);
 
+    try {
+      const profileResponse = await axios.post("/api/users/complete-profile", {
+        phone: formData.phone,
+        full_name: formData.full_name,
+        gender: formData.gender,
+        address: formData.address,
+        type: formData.type,
+      });
+
+      if (profileResponse.status === 200) {
+        toast.success(profileResponse.data.message);
+      } else {
+        throw new Error(profileResponse.data.message);
+      }
+
+      if (formData.avatar) {
+        const formDataUpload = new FormData();
+        formDataUpload.append("avatar", formData.avatar);
+
+        const uploadResponse = await axios.post(
+          "/api/users/upload-avatar",
+          formDataUpload,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+
+        if (uploadResponse.status === 200) {
+          toast.success(uploadResponse.data.message);
+        } else {
+          throw new Error(uploadResponse.data.message);
+        }
+      }
+
+      toast.success("Signup completed successfully!");
+      navigate('/dashboard');
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong!");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({ ...formData, image: URL.createObjectURL(file) });
+      setFormData({
+        ...formData,
+        avatar: file, 
+        imagePreview: URL.createObjectURL(file), 
+      });
     }
   };
 
@@ -276,37 +319,38 @@ const Signup = () => {
 
         {stage === 3 && (
           <form onSubmit={handleFinalSubmit} className="mt-8 space-y-6 animate-slide-up">
-            <div className="space-y-4">
-              <div className="flex flex-col items-center">
-                <div className="w-32 h-32 rounded-full bg-gray-200 overflow-hidden mb-4 ring-4 ring-orange-500 ring-opacity-50">
-                  {formData.image ? (
-                    <img src={formData.image} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <UserCircle className="w-full h-full text-gray-400 p-4" />
-                  )}
-                </div>
-                <label
-                  htmlFor="image"
-                  className="cursor-pointer bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition transform hover:scale-105"
-                >
-                  Upload Photo (Optional)
-                </label>
-                <input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
+          <div className="space-y-4">
+            <div className="flex flex-col items-center">
+              <div className="w-32 h-32 rounded-full bg-gray-200 overflow-hidden mb-4 ring-4 ring-orange-500 ring-opacity-50">
+                {formData.imagePreview ? (
+                  <img src={formData.imagePreview} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <UserCircle className="w-full h-full text-gray-400 p-4" />
+                )}
               </div>
+              <label
+                htmlFor="image"
+                className="cursor-pointer bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition transform hover:scale-105"
+              >
+                Upload Photo (Optional)
+              </label>
+              <input
+                id="image"
+                name='avatar'
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
             </div>
-            <button
-              type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transform transition hover:scale-105"
-            >
-              Complete Signup
-            </button>
-          </form>
+          </div>
+          <button
+            type="submit"
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transform transition hover:scale-105"
+          >
+            Complete Signup
+          </button>
+        </form>
         )}
       </div>
     </div>
