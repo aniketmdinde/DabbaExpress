@@ -4,9 +4,9 @@ import { ChefHat, LogOut, User } from 'lucide-react';
 import Lottie from "lottie-react";
 import animation1 from "./../../public/animations/chef.json";
 import logo from "../../public/images/home.png"
-import logo1 from "./../../public/images/tiffin.png"
-import logo2 from "./../../public/images/provider.png"
-import logo3 from "./../../public/images/login.png"
+import logo1 from "../../public/images/tiffin.png"
+import logo2 from "../../public/images/provider.png"
+import logo3 from "../../public/images/login.png"
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('user'));
