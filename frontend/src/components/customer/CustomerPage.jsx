@@ -19,10 +19,13 @@ import {
 } from 'lucide-react';
 import axios from "axios"
 import {toast} from "react-toastify"
+import TiffinMap from './TiffinMap';
+import foodImg from '../../assets/food.jpg'
 
 
 const CustomerPage = () => {
   const [tiffins, setTiffins] = useState([]);
+  const [nearbyTiffins, setNearbyTiffins] = useState([]);
   const [selectedTiffin, setSelectedTiffin] = useState(null);
   const [orderDetails, setOrderDetails] = useState({
     size: "",
@@ -35,19 +38,18 @@ const CustomerPage = () => {
   
   useEffect(() => {
     const fetchTiffins = async () => {
-      try {
-        console.log(`hello`);
-        const foodList = await axios.get("/api/tiffin");
-        console.log(`hello2`);
-        console.log(foodList.data);
-        setTiffins(foodList.data.tiffins);
-      } catch (error) {
-        console.error("Error fetching tiffins:", error);
-      }
-    };
-
-    fetchTiffins();
-  }, []); // Dependencies should not include state setters
+        try {
+            const foodList = await axios.get("/api/tiffin");
+            setTiffins(foodList.data.tiffins);
+            // Initialize nearbyTiffins with all tiffins initially
+            setNearbyTiffins(foodList.data.tiffins);
+          } catch (error) {
+            console.error("Error fetching tiffins:", error);
+          }
+        };
+    
+        fetchTiffins();
+      }, []); // Dependencies should not include state setters
 
   const handleSelectTiffin = (tiffin) => {
     setSelectedTiffin(tiffin);
@@ -424,18 +426,93 @@ default:
 };
 
 return (
-  <div className="container mx-auto p-4 pt-28">
-    {orderStep === 0 && (
-      <div>
-        <h1 className="text-2xl font-bold mb-6 text-orange-800">Available Tiffin Services</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {renderTiffinCards()}
+    <div className="container mx-auto p-4 pt-28">
+      {orderStep === 0 && (
+        <div>
+          {/* Add the map component at the top */}
+          <TiffinMap 
+            providers={tiffins} 
+            setNearbyProviders={setNearbyTiffins} 
+          />
+          
+          <h1 className="text-2xl font-bold mb-6 text-orange-800">
+            {nearbyTiffins.length > 0 
+              ? "Nearby Tiffin Services" 
+              : "No Tiffin Services Found Nearby"}
+          </h1>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Render nearby tiffins instead of all tiffins */}
+            {nearbyTiffins.map(tiffin => (
+              tiffin && tiffin._id ? (
+                <div key={tiffin._id} className="bg-white rounded-lg shadow-md overflow-hidden border border-orange-200 hover:shadow-lg transition-shadow">
+                  {/* Your existing tiffin card code */}
+                  <div className="relative">
+                    <img src={ tiffin.image == null ? foodImg : tiffin.image } alt={`${tiffin.user.full_name}'s Tiffin`} className="w-full h-48 object-cover text-center" />
+                    <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold text-white ${tiffin.diet === "veg" ? "bg-green-600" : "bg-red-600"}`}>
+                      {tiffin.diet === "veg" ? <Leaf size={16} className="inline mr-1" /> : <Drumstick size={16} className="inline mr-1" />}
+                      {tiffin.diet === "veg" ? "Veg" : "Non-Veg"}
+                    </div>
+                    <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-bold text-white bg-orange-600 flex items-center">
+                      <Star size={14} className="inline mr-1" fill="white" /> {tiffin.rating}
+                    </div>
+                  </div>
+                  
+                  {/* Rest of your tiffin card code */}
+                  <div className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-lg font-bold text-orange-800">{tiffin.user.name}</h3>
+                    </div>
+                    
+                    <div className="text-gray-600 text-sm mb-2 flex items-center">
+                      <MapPin size={14} className="inline mr-1 text-orange-500" /> {tiffin.user.address}
+                    </div>
+                    
+                    <div className="mb-4">
+                      <div className="text-gray-700 text-sm mb-1 flex items-center">
+                        <Clock size={14} className="inline mr-1 text-orange-500" /> {tiffin.availableTime}
+                      </div>
+                      <div className="text-gray-700 text-sm flex items-center">
+                        <AlertTriangle size={14} className="inline mr-1 text-orange-500" /> 
+                        <span className="truncate">{tiffin.allergenInfo}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="border-t border-orange-200 pt-3 mb-3">
+                      <div className="flex justify-between mb-2">
+                        <div className="text-sm">
+                          <span className="font-semibold text-orange-700">Half:</span> ₹{tiffin.tiffin.half.price}
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-semibold text-orange-700">Full:</span> ₹{tiffin.tiffin.full.price}
+                        </div>
+                      </div>
+                      
+                      <div className="text-sm mb-1">
+                        <span className="font-semibold text-orange-700">Half menu:</span> {tiffin.tiffin.half.menu.chapatis} chapatis, {tiffin.tiffin.half.menu.vegetable}
+                      </div>
+                      
+                      <div className="text-sm">
+                        <span className="font-semibold text-orange-700">Full menu:</span> {tiffin.tiffin.full.menu.chapatis} chapatis, {tiffin.tiffin.full.menu.vegetables.join(", ")}
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={() => handleSelectTiffin(tiffin)}
+                      className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center"
+                    >
+                      <ShoppingCart size={16} className="mr-2" /> Order Now
+                    </button>
+                  </div>
+                </div>
+              ) : null
+            ))}
+          </div>
         </div>
-      </div>
-    )}
-    {orderStep > 0 && renderOrderProcess()}
-  </div>
-);
+      )}
+      {orderStep > 0 && renderOrderProcess()}
+    </div>
+  );
 };
 
 export default CustomerPage;
