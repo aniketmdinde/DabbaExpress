@@ -2,6 +2,7 @@ import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
+import { sendOtp, hashOtp } from "../utils/twilio.js"; // Import OTP functions
 
 dotenv.config();
 const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET;
@@ -18,11 +19,14 @@ export const registerUser = async (req, res) => {
     const otp = await user.generateOTP();
     await user.save();
 
+    const otpResponse = await sendOtp(phone_no, otp);
+
     res.status(201).json({
       message: "User registered successfully. Please complete your profile.",
       user_id: user._id,
       needs_profile_completion: true,
       otp,
+      otpResponse,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -163,10 +167,13 @@ export const loginUser = async (req, res) => {
     const otp = await user.generateOTP();
     await user.save();
 
+    const otpResponse = await sendOtp(phone_no, otp);
+
     res.status(201).json({
       message: "User found.",
       user_id: user._id,
       otp,
+      otpResponse,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

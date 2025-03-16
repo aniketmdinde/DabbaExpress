@@ -12,18 +12,18 @@ export const generateOtp = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Send OTP via Twilio SMS
+// Send OTP via Twilio WhatsApp
 export const sendOtp = async (phone, otp) => {
     try {
         const message = await client.messages.create({
             body: `Your OTP is ${otp}. It is valid for 5 minutes.`,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: phone,
+            from: `whatsapp:${process.env.TWILIO_PHONE_NUMBER}`, // Use WhatsApp format
+            to: `whatsapp:${phone}`, // User's WhatsApp number
         });
 
-        return { success: true, message: "OTP sent successfully.", sid: message.sid };
+        return { success: true, message: "OTP sent successfully via WhatsApp.", sid: message.sid };
     } catch (error) {
-        return { success: false, message: "Failed to send OTP.", error: error.message };
+        return { success: false, message: "Failed to send OTP via WhatsApp.", error: error.message };
     }
 };
 
@@ -34,6 +34,20 @@ export const hashOtp = async (otp) => {
 
 // Verify OTP (hashed vs user input)
 export const verifyOtp = async (hashedOtp, inputOtp) => {
-    const isMatch = await bcrypt.compare(inputOtp, hashedOtp);
-    return isMatch;
+    return await bcrypt.compare(inputOtp, hashedOtp);
+};
+
+// Send Order Confirmation via WhatsApp
+export const sendOrderConfirmation = async (phone, orderId, totalPrice) => {
+    try {
+        const message = await client.messages.create({
+            body: `Your order #${orderId} has been created successfully. Total: $${totalPrice}.`,
+            from: `whatsapp:${process.env.TWILIO_PHONE_NUMBER}`, // Send via WhatsApp
+            to: `whatsapp:${phone}`, // User's WhatsApp number
+        });
+
+        return { success: true, message: "Order confirmation sent via WhatsApp.", sid: message.sid };
+    } catch (error) {
+        return { success: false, message: "Failed to send order confirmation.", error: error.message };
+    }
 };

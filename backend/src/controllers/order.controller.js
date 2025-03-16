@@ -1,36 +1,48 @@
-import { Order } from "../models/order.model.js";
-import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
-
 // Create a new order with optional image upload
+import { Order } from "../models/order.model.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { sendOrderConfirmation } from "../utils/twilio.js"; // Import WhatsApp function
+
 export const createOrder = async (req, res) => {
-  try {
-    const user = req.user._id;
-    const { tiffin, quantity, size, totalPrice, deliveryMethod, isPaymentDone } = req.body;
+    try {
+        const user = req.user; // Get user details from request
+        const { tiffin, quantity, size, totalPrice, deliveryMethod, isPaymentDone } = req.body;
 
-    let imageUrl = null;
-    if (req.file) {
-      const uploadResult = await uploadOnCloudinary(req.file.path);
-      if (uploadResult) {
-        imageUrl = uploadResult.secure_url;
-      }
+        let imageUrl = null;
+        if (req.file) {
+            const uploadResult = await uploadOnCloudinary(req.file.path);
+            if (uploadResult) {
+                imageUrl = uploadResult.secure_url;
+            }
+        }
+
+        // Create new order
+        const newOrder = new Order({
+            user: user._id,
+            tiffin,
+            quantity,
+            size,
+            totalPrice,
+            deliveryMethod,
+            isPaymentDone,
+            image: imageUrl,
+        });
+
+        await newOrder.save();
+
+        // Send WhatsApp notification
+        const whatsappResponse = await sendOrderConfirmation(user.phone_no, newOrder._id, totalPrice);
+
+        res.status(201).json({ 
+            success: true, 
+            message: "Order placed successfully", 
+            order: newOrder, 
+            whatsappResponse 
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
-
-    const newOrder = new Order({
-      user,
-      tiffin,
-      quantity,
-      size,
-      totalPrice,
-      deliveryMethod,
-      isPaymentDone,
-      image: imageUrl, // Store the uploaded image URL
-    });
-
-    await newOrder.save();
-    res.status(201).json({ success: true, message: "Order placed successfully", order: newOrder });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
 };
 
 // Get all orders
