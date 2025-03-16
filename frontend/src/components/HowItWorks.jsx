@@ -28,16 +28,16 @@ const HowItWorks = () => {
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">How It Works</h2>
+          <h2 className="text-4xl font-bold text-orange-500 mb-4">How It Works</h2>
           <p className="text-gray-600 text-lg">Simple steps to get your daily home-cooked meals</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((step, index) => (
             <div key={index} className="relative">
-              <div className="bg-orange-50 rounded-lg p-8 h-full">
-                <div className="text-5xl font-bold text-orange-500 mb-4">{step.number}</div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">{step.title}</h3>
+              <div className="bg-gradient-to-b from-orange-500 to-orange-50 rounded-lg p-8 h-full">
+                <div className="text-5xl font-bold text-white mb-4">{step.number}</div>
+                <h3 className="text-xl font-semibold text-orange-500 mb-2">{step.title}</h3>
                 <p className="text-gray-600">{step.description}</p>
               </div>
               {index < steps.length - 1 && (
