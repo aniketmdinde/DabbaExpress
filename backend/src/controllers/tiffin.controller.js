@@ -3,7 +3,7 @@ import { Tiffin } from "../models/tiffin.model.js";
 // Create a new Tiffin
 export const createTiffin = async (req, res) => {
   try {
-    const user = req.user;
+    const user = req.user._id;
     console.log(user);
     const { tiffin, diet, max_order, availableTime, allergenInfo, image, deliveryOptions } = req.body;
     console.log(`h5`);
@@ -30,7 +30,7 @@ export const createTiffin = async (req, res) => {
 // Get all Tiffins
 export const getAllTiffins = async (req, res) => {
   try {
-    const tiffins = await Tiffin.find().populate("user", "name email"); // Populate user details
+    const tiffins = await Tiffin.find().populate("user", "full_name"); // Populate user details
     res.status(200).json({ success: true, tiffins });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -40,7 +40,7 @@ export const getAllTiffins = async (req, res) => {
 // Get a single Tiffin by ID
 export const getTiffinById = async (req, res) => {
   try {
-    const tiffin = await Tiffin.findById(req.params.id).populate("user", "name email");
+    const tiffin = await Tiffin.findById(req.params.id).populate("user", "full_name");
 
     if (!tiffin) {
       return res.status(404).json({ success: false, message: "Tiffin not found" });

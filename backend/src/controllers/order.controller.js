@@ -3,7 +3,10 @@ import { Order } from "../models/order.model.js";
 // Create a new order
 export const createOrder = async (req, res) => {
   try {
-    const { user, tiffin, quantity, size, totalPrice, deliveryMethod, isPaymentDone } = req.body;
+    const user  = req.user._id;
+    console.log(user);
+    console.log(req.body);
+    const {tiffin, quantity, size, totalPrice, deliveryMethod, isPaymentDone } = req.body;
 
     const newOrder = new Order({
       user,

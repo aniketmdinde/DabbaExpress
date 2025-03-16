@@ -8,15 +8,16 @@ import {
   updateOrder,
   deleteOrder,
 } from "../controllers/order.controller.js";
+import { verifyUserJWT } from '../middlewares/auth.middleware.js'
 
 const router = express.Router();
 
-router.post("/", createOrder);
-router.get("/", getAllOrders);
-router.get("/:id", getOrderById);
-router.get("/user/:userId", getOrdersByUserId);
-router.get("/tiffin/:tiffinId", getOrdersByTiffinId);
-router.put("/:id", updateOrder);
-router.delete("/:id", deleteOrder);
+router.post("/",verifyUserJWT , createOrder);
+router.get("/",verifyUserJWT, getAllOrders);
+router.get("/:id",verifyUserJWT, getOrderById);
+router.get("/user/:userId",verifyUserJWT, getOrdersByUserId);
+router.get("/tiffin/:tiffinId",verifyUserJWT, getOrdersByTiffinId);
+router.put("/:id",verifyUserJWT, updateOrder);
+router.delete("/:id",verifyUserJWT, deleteOrder);
 
 export default router;
