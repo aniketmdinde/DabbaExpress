@@ -41,6 +41,9 @@ const Navbar = () => {
             <div className="flex flex-col items-center">
               <Link to="/user/dashboard" className="text-black font-serif hover:text-orange-500 font-bold">User dashboard</Link>
             </div>
+            <div className="flex flex-col items-center">
+              <Link to="/order" className="text-black font-serif hover:text-orange-500 font-bold">User's orders</Link>
+            </div>
             {isLoggedIn ? (
               <>
                 <Link to="/profile" className="flex items-center text-gray-600 hover:text-orange-500">
