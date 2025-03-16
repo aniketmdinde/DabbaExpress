@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, Search, Home, History, MessageSquare, Star, LogOut, ChevronRight } from 'lucide-react';
+import CustomerPage from './CustomerPage';
 
 export default function CustomerDashboard() {
   const [activePage, setActivePage] = useState('main');
@@ -139,6 +140,9 @@ export default function CustomerDashboard() {
             </div>
           </div>
         );
+
+      case 'orders':
+        return <CustomerPage/>
       default:
         return <div className="p-6">Page not found</div>;
     }
@@ -279,6 +283,13 @@ export default function CustomerDashboard() {
               >
                 <History size={20} className="mr-3" />
                 <span>Tiffin History</span>
+              </button>
+              <button 
+                onClick={() => setActivePage('orders')}
+                className={`flex items-center px-4 py-3 w-full text-left rounded-lg ${activePage === 'orders' ? 'bg-indigo-900' : 'hover:bg-indigo-700'}`}
+              >
+                <History size={20} className="mr-3" />
+                <span>Exlpore Orders</span>
               </button>
             </nav>
           </div>

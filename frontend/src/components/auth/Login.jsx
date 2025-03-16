@@ -61,7 +61,7 @@ const Login = () => {
       if (response.status === 200) {
         toast.success(response.data.message);  // ✅ Correct success toast
 
-        navigate("/dashboard")  // ✅ Correct success toast
+        navigate("/")  // ✅ Correct success toast
       } else {
         toast.error(response.data.message);
       }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChefHat, LogOut, User } from 'lucide-react';
 import Lottie from "lottie-react";
@@ -14,6 +14,13 @@ const Navbar = () => {
     navigate('/');
   };
 
+  useEffect(()=>{
+    localStorage.setItem('user',{
+      full_Name:"Aniket", 
+      type:"role"
+    })
+  })
+
   return (
     <nav className="bg-orange-50 shadow-md fixed w-full z-50">
       <div className="w-100% mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,7 +28,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex  items-center">
             <Lottie animationData={animation1} className="w-32 mx-auto" />
-              <span className="ml-2 text-3xl font-bold text-orange-500">HomeTiffin</span>
+              <span className="ml-2 text-3xl font-bold text-orange-500">DabbaExpress</span>
             </Link>
           </div>
           <div className="hidden md:flex items-center justify-evenly w-7/12 ">
@@ -29,7 +36,10 @@ const Navbar = () => {
               <Link to="/" className="text-black font-serif hover:text-orange-500 font-bold">Home</Link>
             </div>
             <div className="flex flex-col items-center">
-              <Link to="/dashboard" className="text-black font-serif hover:text-orange-500 font-bold">Dashboard</Link>
+              <Link to="/provider/dashboard" className="text-black font-serif hover:text-orange-500 font-bold">Provider dashboard</Link>
+            </div>
+            <div className="flex flex-col items-center">
+              <Link to="/user/dashboard" className="text-black font-serif hover:text-orange-500 font-bold">User dashboard</Link>
             </div>
             {isLoggedIn ? (
               <>
