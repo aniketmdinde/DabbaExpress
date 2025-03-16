@@ -3,10 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ChefHat, LogOut, User } from 'lucide-react';
 import Lottie from "lottie-react";
 import animation1 from "./../../public/animations/chef.json";
-import logo from "../../public/images/home.png"
-import logo1 from "../../public/images/tiffin.png"
-import logo2 from "../../public/images/provider.png"
-import logo3 from "../../public/images/login.png"
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('user'));
@@ -30,16 +26,10 @@ const Navbar = () => {
           </div>
           <div className="hidden md:flex items-center justify-evenly w-7/12 ">
             <div className="flex flex-col items-center">
-              <img src={logo} alt="Logo" className="w-8 h-8" />
               <Link to="/" className="text-black font-serif hover:text-orange-500 font-bold">Home</Link>
             </div>
             <div className="flex flex-col items-center">
-              <img src={logo1} alt="Logo" className="w-8 h-8" />
-              <Link to="/browse" className="text-black font-serif hover:text-orange-500 font-bold">Browse Tiffins</Link>
-            </div>
-            <div className="flex flex-col items-center">
-              <img src={logo2} alt="Logo" className="w-8 h-8" />
-              <Link to="/become-provider" className="text-black font-serif hover:text-orange-500 font-bold">Become a Provider</Link>
+              <Link to="/dashboard" className="text-black font-serif hover:text-orange-500 font-bold">Dashboard</Link>
             </div>
             {isLoggedIn ? (
               <>
@@ -58,7 +48,6 @@ const Navbar = () => {
             ) : (
               <>
                 <div className="flex flex-col items-center">
-                  <img src={logo3} alt="Logo" className="w-8 h-8" />
                   <Link to="/login" className="text-black hover:text-orange-500 font-serif font-bold">Login</Link>
                 </div>
                 <Link to="/signup" className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">

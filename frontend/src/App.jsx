@@ -11,35 +11,42 @@ import Signup from './components/auth/Signup';
 import Login from './components/auth/Login';
 import Dashboard from './components/Dashboard';
 import ProviderForm from './components/provider/ProviderForm';
-import CustomerPage from './components/customer/CustomerPage'; // ✅ Make sure to import it
+import CustomerPage from './components/customer/CustomerPage';
+import ProviderDashboard from './components/provider/ProviderDashboard';
+// import { AuthProvider } from './context';
+import CustomerDashboard from './components/customer/CustomerDashboard';
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-white">
-        <ToastContainer position="top-right" autoClose={3000} />
-        <Navbar />
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/provider/create" element={<ProviderForm />} />
-          <Route path="/order" element={<CustomerPage />} /> {/* ✅ Added CustomerPage route */}
-          
-          <Route
-            path="/"
-            element={
-              <>
-                <Hero />
-                <Features />
-                <HowItWorks />
-              </>
-            }
-          />
-        </Routes>
-        <Footer />
-      </div>
-    </Router>
+    // <AuthProvider>
+
+      <Router>
+        <div className="min-h-screen bg-white">
+          <ToastContainer position="bottom-right" autoClose={3000} />
+          <Navbar />
+          <Routes>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/provider/dashboard" element={<ProviderDashboard />} />
+            <Route path="/user/dashboard" element={<CustomerDashboard />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/provider/create" element={<ProviderForm />} />
+            <Route path="/order" element={<CustomerPage />} />
+            <Route
+              path="/"
+              element={
+                <>
+                  <Hero />
+                  <Features />
+                  <HowItWorks />
+                </>
+              }
+            />
+          </Routes>
+          <Footer />
+        </div>
+      </Router>
+    // </AuthProvider>
   );
 }
 
